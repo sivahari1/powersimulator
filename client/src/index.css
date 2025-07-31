@@ -1,0 +1,354 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Device switch animations */
+.device-switch {
+  transition: all 0.3s ease;
+}
+
+.device-active {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+}
+
+/* Meter animations */
+.meter-value {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+/* Electricity pole and cable animations */
+.electricity-pole-container {
+  position: relative;
+}
+
+.cable-line {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.cable-line:hover {
+  transform: scale(1.05);
+}
+
+.cable-line.animate-pulse {
+  animation: cable-pulse 2s infinite;
+}
+
+@keyframes cable-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+  }
+}
+
+.power-flow {
+  animation: power-flow 3s infinite;
+}
+
+.power-particle {
+  animation: particle-bounce 1.5s infinite;
+}
+
+@keyframes power-flow {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(64px);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Voltage display animations */
+.voltage-display {
+  animation: voltage-fade 0.3s ease-in-out;
+}
+
+@keyframes voltage-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Power status indicators */
+.power-status-active {
+  animation: status-pulse 2s infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Device disabled state */
+.device-disabled {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+/* Cable connectors glow effect */
+.cable-connector {
+  transition: all 0.3s ease;
+}
+
+.cable-connector.active {
+  animation: connector-glow 2s infinite;
+}
+
+@keyframes connector-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+  }
+}
+
+/* Power Flow Animation System */
+.power-flow-svg {
+  position: relative;
+}
+
+.power-flow-svg svg {
+  transition: all 0.3s ease;
+}
+
+/* Animated power lines */
+.power-line {
+  stroke-dasharray: 10, 5;
+  animation: power-line-flow 2s linear infinite;
+}
+
+@keyframes power-line-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -15;
+  }
+}
+
+/* Power particle animations */
+.power-particle {
+  animation: particle-flow 3s linear infinite;
+}
+
+@keyframes particle-flow {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100px) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* Power level color transitions */
+.power-normal {
+  color: #10B981;
+  transition: color 0.5s ease;
+}
+
+.power-warning {
+  color: #F59E0B;
+  transition: color 0.5s ease;
+}
+
+.power-overload {
+  color: #EF4444;
+  transition: color 0.5s ease;
+  animation: overload-pulse 1s infinite;
+}
+
+@keyframes overload-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Device indicator animations */
+.device-indicator {
+  animation: device-pulse 2s infinite;
+}
+
+@keyframes device-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Junction box animations */
+.junction-box {
+  animation: junction-glow 3s infinite;
+}
+
+@keyframes junction-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+/* Power flow direction indicators */
+.flow-arrow {
+  animation: arrow-flow 2s linear infinite;
+}
+
+@keyframes arrow-flow {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Circuit breaker animations */
+.circuit-breaker {
+  transition: all 0.3s ease;
+}
+
+.circuit-breaker.tripped {
+  animation: breaker-trip 0.5s ease-in-out;
+}
+
+@keyframes breaker-trip {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Power grid animations */
+.power-grid {
+  animation: grid-pulse 4s infinite;
+}
+
+@keyframes grid-pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Energy flow visualization */
+.energy-flow {
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  background-size: 200% 100%;
+  animation: energy-flow 3s linear infinite;
+}
+
+@keyframes energy-flow {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+} 
