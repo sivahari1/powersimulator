@@ -11,6 +11,9 @@ import EfficiencyScoring from './components/EfficiencyScoring';
 import Settings from './components/Settings';
 import soundManager from './components/SoundEffects';
 
+// Check if we're on GitHub Pages (no backend available)
+const isGitHubPages = window.location.hostname === 'sivahari1.github.io';
+
 function App() {
   const [socket, setSocket] = useState(null);
   const [houseLayout, setHouseLayout] = useState(null);
@@ -50,102 +53,249 @@ function App() {
   const [efficiencyHistory, setEfficiencyHistory] = useState([]);
   const [newBadge, setNewBadge] = useState(null);
 
+  // Initialize default house layout for standalone mode
+  const defaultHouseLayout = {
+    bedrooms: [
+      {
+        id: 'bedroom1',
+        name: 'Bedroom 1',
+        devices: {
+          ac: { id: 'ac', name: 'AC', power: 1500, active: false },
+          fan: { id: 'fan', name: 'Fan', power: 75, active: false },
+          tubelight: { id: 'tubelight', name: 'Tube Light', power: 40, active: false },
+          laptop: { id: 'laptop', name: 'Laptop', power: 65, active: false }
+        }
+      },
+      {
+        id: 'bedroom2',
+        name: 'Bedroom 2',
+        devices: {
+          ac: { id: 'ac', name: 'AC', power: 1500, active: false },
+          fan: { id: 'fan', name: 'Fan', power: 75, active: false },
+          tubelight: { id: 'tubelight', name: 'Tube Light', power: 40, active: false }
+        }
+      }
+    ],
+    hall: {
+      id: 'hall',
+      name: 'Hall',
+      devices: {
+        tv: { id: 'tv', name: 'TV', power: 200, active: false },
+        fan: { id: 'fan', name: 'Fan', power: 75, active: false },
+        tubelight: { id: 'tubelight', name: 'Tube Light', power: 40, active: false }
+      }
+    },
+    kitchen: {
+      id: 'kitchen',
+      name: 'Kitchen',
+      devices: {
+        fridge: { id: 'fridge', name: 'Fridge', power: 200, active: false },
+        microwave: { id: 'microwave', name: 'Microwave', power: 1200, active: false },
+        tubelight: { id: 'tubelight', name: 'Tube Light', power: 40, active: false }
+      }
+    },
+    washroom: {
+      id: 'washroom',
+      name: 'Washroom',
+      devices: {
+        geyser: { id: 'geyser', name: 'Geyser', power: 2000, active: false },
+        tubelight: { id: 'tubelight', name: 'Tube Light', power: 40, active: false }
+      }
+    },
+    garden: {
+      id: 'garden',
+      name: 'Garden',
+      devices: {
+        pump: { id: 'pump', name: 'Water Pump', power: 750, active: false },
+        tubelight: { id: 'tubelight', name: 'Garden Light', power: 40, active: false }
+      }
+    }
+  };
+
   useEffect(() => {
-    console.log('Attempting to connect to Socket.IO server...');
-    const newSocket = io('http://localhost:5000');
-    setSocket(newSocket);
-
-    newSocket.on('connect', () => {
-      console.log('✅ Connected to Socket.IO server');
-      newSocket.emit('initialData');
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('❌ Disconnected from Socket.IO server');
-    });
-
-    newSocket.on('connect_error', (error) => {
-      console.error('❌ Socket.IO connection error:', error);
-    });
-
-    newSocket.on('initialData', (data) => {
-      console.log('📊 Received initial data:', data);
-      setHouseLayout(data.houseLayout);
-      setPower(data.power);
-      setCurrent(data.current);
-      setOverloadStatus(data.overloadStatus);
-      setEfficiencyScore(data.efficiencyScore || 100);
-      setEfficiencyLevel(data.efficiencyLevel || 'excellent');
-      setEfficiencyBadge(data.efficiencyBadge || '🌱');
-      setBadges(data.badges || {});
-      setSessionStats(data.sessionStats || {});
-      setEfficiencyHistory(data.efficiencyHistory || []);
-    });
-
-    newSocket.on('powerUpdate', (data) => {
-      console.log('⚡ Power update received:', data);
-      // Update house layout if provided
-      if (data.houseLayout) {
-        setHouseLayout(data.houseLayout);
-      }
-      setPower(data.power);
-      setCurrent(data.current);
-      setOverloadStatus(data.overloadStatus);
-      setEfficiencyScore(data.efficiencyScore || 100);
-      setEfficiencyLevel(data.efficiencyLevel || 'excellent');
-      setEfficiencyBadge(data.efficiencyBadge || '🌱');
-      setSessionStats(data.sessionStats || {});
-      
-      // Handle new badge
-      if (data.newBadge) {
-        setNewBadge(data.newBadge);
-        // Clear new badge after a delay
-        setTimeout(() => setNewBadge(null), 1000);
-      }
-      
-      // Update power history
-      setPowerHistory(prev => {
-        const newHistory = [...prev, { timestamp: Date.now(), power: data.power, current: data.current }];
-        return newHistory.slice(-50); // Keep last 50 entries
+    if (isGitHubPages) {
+      // Standalone mode for GitHub Pages
+      console.log('🌐 Running in standalone mode (GitHub Pages)');
+      setHouseLayout(defaultHouseLayout);
+      setOverloadStatus({
+        currentPower: 0,
+        currentAmps: 0,
+        threshold: 4000,
+        safetyMargin: 500,
+        fuseTripped: false,
+        fuseTripTime: null,
+        canResetFuse: false,
+        overloadWarning: false,
+        percentage: 0,
+        message: 'System operating normally',
+        normal: true
       });
-    });
+    } else {
+      // Normal mode with backend
+      console.log('Attempting to connect to Socket.IO server...');
+      const newSocket = io('http://localhost:5000');
+      setSocket(newSocket);
 
-    newSocket.on('fuseTripped', (data) => {
-      console.log('🚨 Fuse tripped:', data);
-      setOverloadStatus(prev => ({ ...prev, ...data }));
-    });
+      newSocket.on('connect', () => {
+        console.log('✅ Connected to Socket.IO server');
+        newSocket.emit('initialData');
+      });
 
-    newSocket.on('fuseReset', (data) => {
-      console.log('🔧 Fuse reset:', data);
-      setOverloadStatus(prev => ({ ...prev, ...data }));
-    });
+      newSocket.on('disconnect', () => {
+        console.log('❌ Disconnected from Socket.IO server');
+      });
 
-    newSocket.on('deviceToggleRejected', (data) => {
-      console.log('❌ Device toggle rejected:', data.message);
-    });
+      newSocket.on('connect_error', (error) => {
+        console.error('❌ Socket.IO connection error:', error);
+      });
 
-    newSocket.on('fuseResetRejected', (data) => {
-      console.log('❌ Fuse reset rejected:', data.message);
-    });
+      newSocket.on('initialData', (data) => {
+        console.log('📊 Received initial data:', data);
+        setHouseLayout(data.houseLayout);
+        setPower(data.power);
+        setCurrent(data.current);
+        setOverloadStatus(data.overloadStatus);
+        setEfficiencyScore(data.efficiencyScore || 100);
+        setEfficiencyLevel(data.efficiencyLevel || 'excellent');
+        setEfficiencyBadge(data.efficiencyBadge || '🌱');
+        setBadges(data.badges || {});
+        setSessionStats(data.sessionStats || {});
+        setEfficiencyHistory(data.efficiencyHistory || []);
+      });
 
-    return () => {
-      console.log('Cleaning up Socket.IO connection...');
-      newSocket.close();
-    };
+      newSocket.on('powerUpdate', (data) => {
+        console.log('⚡ Power update received:', data);
+        // Update house layout if provided
+        if (data.houseLayout) {
+          setHouseLayout(data.houseLayout);
+        }
+        setPower(data.power);
+        setCurrent(data.current);
+        setOverloadStatus(data.overloadStatus);
+        setEfficiencyScore(data.efficiencyScore || 100);
+        setEfficiencyLevel(data.efficiencyLevel || 'excellent');
+        setEfficiencyBadge(data.efficiencyBadge || '🌱');
+        setSessionStats(data.sessionStats || {});
+        
+        // Handle new badge
+        if (data.newBadge) {
+          setNewBadge(data.newBadge);
+          // Clear new badge after a delay
+          setTimeout(() => setNewBadge(null), 1000);
+        }
+        
+        // Update power history
+        setPowerHistory(prev => [...prev, { time: Date.now(), power: data.power }].slice(-50));
+      });
+    }
   }, []);
 
   const handleDeviceToggle = (roomId, deviceType) => {
     console.log('handleDeviceToggle called:', { roomId, deviceType, socket: !!socket, isPowerOn, fuseTripped: overloadStatus?.fuseTripped });
     
-    if (socket && isPowerOn && !overloadStatus?.fuseTripped) {
-      console.log('Emitting toggleDevice to server');
-      socket.emit('toggleDevice', { roomId, deviceType });
+    if (isGitHubPages) {
+      // Standalone mode - handle device toggle locally
+      if (isPowerOn && !overloadStatus?.fuseTripped) {
+        console.log('Standalone device toggle');
+        setHouseLayout(prevLayout => {
+          const newLayout = { ...prevLayout };
+          
+          // Find the room and toggle the device
+          if (newLayout[roomId]) {
+            if (newLayout[roomId].devices[deviceType]) {
+              newLayout[roomId].devices[deviceType].active = !newLayout[roomId].devices[deviceType].active;
+            }
+          } else {
+            // Check bedrooms array
+            newLayout.bedrooms = newLayout.bedrooms.map(bedroom => {
+              if (bedroom.id === roomId) {
+                return {
+                  ...bedroom,
+                  devices: {
+                    ...bedroom.devices,
+                    [deviceType]: {
+                      ...bedroom.devices[deviceType],
+                      active: !bedroom.devices[deviceType].active
+                    }
+                  }
+                };
+              }
+              return bedroom;
+            });
+          }
+          
+          // Calculate new power and current
+          let totalPower = 0;
+          let deviceCount = 0;
+          
+          Object.values(newLayout).forEach(room => {
+            if (room.devices) {
+              Object.values(room.devices).forEach(device => {
+                if (device.active) {
+                  totalPower += device.power;
+                  deviceCount++;
+                }
+              });
+            }
+          });
+          
+          // Update power and current
+          setPower(totalPower);
+          setCurrent(totalPower / voltage);
+          
+          // Update overload status
+          const percentage = (totalPower / 4000) * 100;
+          const newOverloadStatus = {
+            currentPower: totalPower,
+            currentAmps: totalPower / voltage,
+            threshold: 4000,
+            safetyMargin: 500,
+            fuseTripped: totalPower > 4000,
+            fuseTripTime: totalPower > 4000 ? Date.now() : null,
+            canResetFuse: false,
+            overloadWarning: percentage > 80,
+            percentage,
+            message: totalPower > 4000 ? 'Fuse tripped due to overload!' : percentage > 80 ? 'High power consumption warning' : 'System operating normally',
+            normal: totalPower <= 4000
+          };
+          setOverloadStatus(newOverloadStatus);
+          
+          // Update efficiency score
+          const newScore = Math.max(0, 100 - (totalPower / 40));
+          setEfficiencyScore(newScore);
+          
+          // Update efficiency level
+          let newLevel = 'excellent';
+          let newBadge = '🌱';
+          if (newScore < 50) {
+            newLevel = 'poor';
+            newBadge = '⚠️';
+          } else if (newScore < 75) {
+            newLevel = 'good';
+            newBadge = '🌿';
+          }
+          setEfficiencyLevel(newLevel);
+          setEfficiencyBadge(newBadge);
+          
+          // Play sound effect
+          soundManager.playDeviceToggle(newLayout[roomId]?.devices[deviceType]?.active || 
+            newLayout.bedrooms.find(b => b.id === roomId)?.devices[deviceType]?.active);
+          
+          return newLayout;
+        });
+      }
     } else {
-      console.log('Device toggle blocked:', {
-        noSocket: !socket,
-        powerOff: !isPowerOn,
-        fuseTripped: overloadStatus?.fuseTripped
-      });
+      // Normal mode with backend
+      if (socket && isPowerOn && !overloadStatus?.fuseTripped) {
+        console.log('Emitting toggleDevice to server');
+        socket.emit('toggleDevice', { roomId, deviceType });
+      } else {
+        console.log('Device toggle blocked:', {
+          noSocket: !socket,
+          powerOff: !isPowerOn,
+          fuseTripped: overloadStatus?.fuseTripped
+        });
+      }
     }
   };
 
