@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/power-simulator-v2/static/css/main.53062de3.css",
+    "main.js": "/power-simulator-v2/static/js/main.05a1cd6c.js",
+    "index.html": "/power-simulator-v2/index.html",
+    "main.53062de3.css.map": "/power-simulator-v2/static/css/main.53062de3.css.map",
+    "main.05a1cd6c.js.map": "/power-simulator-v2/static/js/main.05a1cd6c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.53062de3.css",
+    "static/js/main.05a1cd6c.js"
+  ]
+}
