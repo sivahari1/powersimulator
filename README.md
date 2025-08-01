@@ -44,4 +44,4 @@ Automatically deployed to GitHub Pages on every push to main branch.
 
 ---
 
-**⚡ Power up your understanding of home electricity!** 
+**⚡ Power up your understanding of home electricity!** "# power-simulator-v2" 
